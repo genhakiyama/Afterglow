@@ -4,8 +4,6 @@ const crypto = require('crypto');
 
 const authErr = require('../Errors/Authen');
 
-const notification = require('../Socket/Notification');
-
 const EmailService = require('./Email');
 const Token = require('../UTIL/Token');
 const { error } = require('console');
@@ -48,9 +46,8 @@ async function Login(email  , username , password){
     }
 
     if (await brcrypt.compare(password , user.password)) {
-        notification.SendMessage('Server' , {action : `User ${user.id} đăng nhập vào hệ thống thành công` , username : user.username});
         return {
-            message : `Chào mừng trở lại ${user.username}` , 
+            message : `Chào mừng trở lại ${user.username}` ,
             userId : user.id
         };
     }

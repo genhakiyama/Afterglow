@@ -3,7 +3,7 @@ const ConverMem = require('../Models/ConversationMembers');
 
 const chatErr = require('../Errors/Chat');
 
-const notification = require('../Socket/Notification');
+const room = require('../Socket/RoomManager');
 
 const MAX_PER_CHAT = 300;
 
@@ -14,13 +14,6 @@ async function createNewChat(userId , username , conversation_name , converstati
             conversationName : conversation_name
         }
     });
-
-    if (converstation_type === 'direct') {
-        return {
-            status_code : chatErr.CannotChatWithSelfError.defaultStatusCode , 
-            message : chatErr.CannotChatWithSelfError.defaultMessage
-        }
-    }
 
     if (isMem) return {
         status_code : chatErr.ChatAlreadyExistsError.defaultStatusCode , 
@@ -38,11 +31,11 @@ async function createNewChat(userId , username , conversation_name , converstati
         }
     });
 
-    notification.SendMessage('Admin' , {
-        action : 'Creating a new chat' , 
-        username : username , 
-        conversationName : conversation_name , 
-        converstationType : converstation_type
+    
+    room.joinRoom(conversation.id , userId , {
+        action : 'create new chat' , 
+        message : `${username} đã tạo đoạn chat`,
+        chatId : conversation.id
     });
 
     return {
@@ -50,15 +43,13 @@ async function createNewChat(userId , username , conversation_name , converstati
     };
 }
 
-async function joinChat(userId , conversationId){
+async function joinChat(username , userId , conversationId){
     const isMem = await ConverMem.findOne({
         where : {
             userId , 
             conversationId
         }
     });
-
-    console.log(`${isMem} - ${userId} - ${conversationId}`);
 
     if (isMem) {
         return {
@@ -88,6 +79,12 @@ async function joinChat(userId , conversationId){
         }
     }
 
+    room.joinRoom(conversationId , userId , {
+        action : "Join" , 
+        message : `${username} đã tham gia vào đoạn chat`,
+        chatId : conversationId
+    })
+
     await conversation.update({numberMembers});
     await conversation.addUser(
         userId , {
@@ -96,14 +93,6 @@ async function joinChat(userId , conversationId){
             }
         }
     );
-
-    notification.SendMessage('Admin' , {
-        action : 'join chat' , 
-        userId : userId , 
-        conversationId : conversation.id,
-        conversation : conversation.name,
-        currentMember : conversation.numberMembers
-    });
 
     return {
         message : 'Chào mừng gia nhập!'

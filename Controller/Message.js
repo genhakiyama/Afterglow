@@ -3,7 +3,7 @@ require('dotenv').config();
 const MessageService = require('../Service/Message');
 const notification = require('../Socket/Notification');
 
-async function SendMessage(req , res) {
+async function sendMessage(req , res) {
     const userId = req.userId;
     const { conversationId ,  type , content } = req.body;
 
@@ -21,7 +21,30 @@ async function SendMessage(req , res) {
     return res.status(200).json({
         success : true , 
         payload : {
-            message : sendMessage.message
+            sendMessage
         }
     });
 }
+
+async function deleteMessage(req , res) {
+    const user = req.userId;
+    const {conversationId , userId , messageId} = req.body;
+
+    const deleteMessage = await MessageService.deleteMessage(userId , conversationId , messageId);
+    if (deleteMessage.error) {
+        return res.status(deleteMessage.status_code).json({
+            error : deleteMessage.error
+        });
+    }
+
+    return res.status(200).json({
+        payload : {
+            deleteMessage
+        }
+    });
+}
+
+module.exports = {
+    sendMessage , 
+    deleteMessage
+};

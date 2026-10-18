@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 const chatService = require('../Service/Conversation');
-const notification = require('../Socket/Notification');
 
 async function createChat(req , res) {
     const userId = req.userId;
@@ -11,10 +10,6 @@ async function createChat(req , res) {
     const newChat = await chatService.createNewChat(userId , username , conversation_name , conversation_type);
 
     if (newChat.error) {
-        notification.SendMessage('admin' , {
-            action : 'error' , 
-            message : newChat.error
-        });
         return res.status(newChat.status_code).json({
             sucess : false , 
             payload : {
@@ -33,9 +28,10 @@ async function createChat(req , res) {
 
 async function joinChat(req , res) {
     const userId = req.userId;
+    const username = req.username;
     const {conversationId} = req.params;
 
-    const isJoin = await chatService.joinChat(userId , conversationId);
+    const isJoin = await chatService.joinChat(username , userId , conversationId);
 
     if (isJoin.error) {
         return res.status(isJoin.status_code).json({

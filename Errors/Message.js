@@ -1,3 +1,24 @@
+const AppError = require('./base');
+
+// Các lỗi liên quan đến nội dung và sự tồn tại của tin nhắn
+class MessageNotFoundError extends AppError {
+  static defaultCode = 'MESSAGE_NOT_FOUND';
+  static defaultMessage = 'Tin nhắn không tồn tại hoặc đã bị xóa.';
+  static defaultStatusCode = 404;
+}
+
+class EmptyMessageError extends AppError {
+  static defaultCode = 'EMPTY_MESSAGE';
+  static defaultMessage = 'Nội dung tin nhắn không được để trống.';
+  static defaultStatusCode = 400;
+}
+
+class MessageTooLongError extends AppError {
+  static defaultCode = 'MESSAGE_TOO_LONG';
+  static defaultMessage = 'Nội dung tin nhắn vượt quá số lượng ký tự cho phép.';
+  static defaultStatusCode = 400;
+}
+
 // Các lỗi liên quan đến quyền và bảo mật
 class UnauthorizedMessageActionError extends AppError {
   static defaultCode = 'UNAUTHORIZED_MESSAGE_ACTION';

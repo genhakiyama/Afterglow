@@ -7,8 +7,6 @@ const Token = require('../UTIL/Token');
 
 const mailError = require('../Errors/Email');
 
-const notification = require('../Socket/Notification');
-
 const transporter = nodemailer.createTransport({
     service : 'gmail' , 
     pool : true , 
@@ -68,8 +66,6 @@ async function verifyEmail(token) {
         verificationToken : null , 
         verificationExpire : null
     });
-    
-    notification.SendMessage('email-verified' , {action : 'Email Verified' , userId : user.id});
 
     return {message : `User ${user.id} xax tuc email thanh cong`};
 }
